@@ -14,7 +14,10 @@ export class MetaMaskAdapter extends BaseWalletAdapter {
     return typeof window !== 'undefined' && 
            window.ethereum && 
            window.ethereum.isMetaMask && 
-           !window.ethereum.isTrust; // Exclude TrustWallet which also sets isMetaMask
+           !window.ethereum.isTrust && 
+           !window.ethereum.isTrustWallet &&
+           !window.ethereum.isTokenPocket &&
+           !window.ethereum.isCoinbaseWallet;
   }
 
   async connect() {
@@ -51,6 +54,9 @@ export class MetaMaskAdapter extends BaseWalletAdapter {
         window.location.reload();
       });
 
+      // Log connection details
+      await this.logConnectionDetails();
+
       return {
         address: this.address,
         provider: this.provider
@@ -58,6 +64,56 @@ export class MetaMaskAdapter extends BaseWalletAdapter {
     } catch (error) {
       console.error('MetaMask connection error:', error);
       throw error;
+    }
+  }
+
+  getSupportedCurrencies() {
+    return [
+      { symbol: 'ETH', name: 'Ethereum', network: 'Ethereum' },
+      { symbol: 'MATIC', name: 'Polygon', network: 'Polygon' },
+      { symbol: 'BNB', name: 'Binance Coin', network: 'BSC' },
+      { symbol: 'AVAX', name: 'Avalanche', network: 'Avalanche' },
+      { symbol: 'FTM', name: 'Fantom', network: 'Fantom' },
+      { symbol: 'USDT', name: 'Tether', network: 'Multi-chain' },
+      { symbol: 'USDC', name: 'USD Coin', network: 'Multi-chain' },
+      { symbol: 'DAI', name: 'Dai Stablecoin', network: 'Ethereum' },
+      { symbol: 'WETH', name: 'Wrapped Ethereum', network: 'Multi-chain' }
+    ];
+  }
+
+  async getTokenBalance(tokenAddress, symbol) {
+    if (!this.connected || !this.provider || !this.address) {
+      throw new Error('Wallet not connected');
+    }
+
+    // If it's a native token, return the native balance
+    if (this.isPrimaryCurrency(symbol)) {
+      return await this.getBalance();
+    }
+
+    // If no token address provided, return 0
+    if (!tokenAddress) {
+      return '0';
+    }
+
+    try {
+      // ERC-20 token balance check
+      const tokenContract = new ethers.Contract(
+        tokenAddress,
+        [
+          'function balanceOf(address owner) view returns (uint256)',
+          'function decimals() view returns (uint8)'
+        ],
+        this.provider
+      );
+
+      const balance = await tokenContract.balanceOf(this.address);
+      const decimals = await tokenContract.decimals();
+      
+      return ethers.formatUnits(balance, decimals);
+    } catch (error) {
+      console.warn(`Failed to fetch ${symbol} balance:`, error.message);
+      return '0';
     }
   }
 

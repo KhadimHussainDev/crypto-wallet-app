@@ -47,6 +47,9 @@ export class PhantomAdapter extends BaseWalletAdapter {
         this.disconnect();
       });
 
+      // Log connection details
+      await this.logConnectionDetails();
+
       return {
         address: this.address,
         provider: this.provider
@@ -55,6 +58,19 @@ export class PhantomAdapter extends BaseWalletAdapter {
       console.error('Phantom connection error:', error);
       throw error;
     }
+  }
+
+  getSupportedCurrencies() {
+    return [
+      { symbol: 'SOL', name: 'Solana', network: 'Solana' },
+      { symbol: 'USDC', name: 'USD Coin', network: 'Solana' },
+      { symbol: 'USDT', name: 'Tether', network: 'Solana' },
+      { symbol: 'RAY', name: 'Raydium', network: 'Solana' },
+      { symbol: 'SRM', name: 'Serum', network: 'Solana' },
+      { symbol: 'COPE', name: 'Cope', network: 'Solana' },
+      { symbol: 'STEP', name: 'Step Finance', network: 'Solana' },
+      { symbol: 'FIDA', name: 'Bonfida', network: 'Solana' }
+    ];
   }
 
   async disconnect() {

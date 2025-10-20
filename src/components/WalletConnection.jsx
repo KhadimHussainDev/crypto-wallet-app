@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useWallet } from '../contexts/WalletContext';
-import { SUPPORTED_WALLETS, getAllWallets } from '../lib/walletAdapters';
+import { SUPPORTED_WALLETS, getAllWallets, debugWalletDetection } from '../lib/walletAdapters';
 import WalletCard from './WalletCard';
 import WalletInfo from './WalletInfo';
 
@@ -15,8 +15,14 @@ const WalletConnection = () => {
 
   const allWallets = getAllWallets();
 
+  // Debug wallet detection on component mount
+  useEffect(() => {
+    debugWalletDetection();
+  }, []);
+
   const handleConnectWallet = async (walletType) => {
     clearError();
+    console.log(`🔗 Attempting to connect to: ${walletType}`);
     await connectWallet(walletType);
   };
 

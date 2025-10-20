@@ -62,6 +62,9 @@ export class CoinbaseWalletAdapter extends BaseWalletAdapter {
         window.location.reload();
       });
 
+      // Log connection details
+      await this.logConnectionDetails();
+
       return {
         address: this.address,
         provider: this.provider
@@ -70,6 +73,20 @@ export class CoinbaseWalletAdapter extends BaseWalletAdapter {
       console.error('Coinbase Wallet connection error:', error);
       throw error;
     }
+  }
+
+  getSupportedCurrencies() {
+    return [
+      { symbol: 'ETH', name: 'Ethereum', network: 'Ethereum' },
+      { symbol: 'USDC', name: 'USD Coin', network: 'Multi-chain' },
+      { symbol: 'USDT', name: 'Tether', network: 'Multi-chain' },
+      { symbol: 'DAI', name: 'Dai Stablecoin', network: 'Ethereum' },
+      { symbol: 'WETH', name: 'Wrapped Ethereum', network: 'Multi-chain' },
+      { symbol: 'MATIC', name: 'Polygon', network: 'Polygon' },
+      { symbol: 'UNI', name: 'Uniswap', network: 'Ethereum' },
+      { symbol: 'LINK', name: 'Chainlink', network: 'Ethereum' },
+      { symbol: 'COMP', name: 'Compound', network: 'Ethereum' }
+    ];
   }
 
   async disconnect() {

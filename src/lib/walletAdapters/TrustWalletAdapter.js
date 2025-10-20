@@ -15,7 +15,8 @@ export class TrustWalletAdapter extends BaseWalletAdapter {
     // We can detect TrustWallet by checking for specific properties
     return typeof window !== 'undefined' && 
            window.ethereum && 
-           (window.ethereum.isTrust || window.ethereum.isTrustWallet);
+           (window.ethereum.isTrust || window.ethereum.isTrustWallet) &&
+           !window.ethereum.isTokenPocket; // TokenPocket might also set isTrust
   }
 
   async connect() {
@@ -52,6 +53,9 @@ export class TrustWalletAdapter extends BaseWalletAdapter {
         window.location.reload();
       });
 
+      // Log connection details
+      await this.logConnectionDetails();
+
       return {
         address: this.address,
         provider: this.provider
@@ -60,6 +64,19 @@ export class TrustWalletAdapter extends BaseWalletAdapter {
       console.error('TrustWallet connection error:', error);
       throw error;
     }
+  }
+
+  getSupportedCurrencies() {
+    return [
+      { symbol: 'ETH', name: 'Ethereum', network: 'Ethereum' },
+      { symbol: 'BNB', name: 'Binance Coin', network: 'BSC' },
+      { symbol: 'USDT', name: 'Tether', network: 'Multi-chain' },
+      { symbol: 'USDC', name: 'USD Coin', network: 'Multi-chain' },
+      { symbol: 'BUSD', name: 'Binance USD', network: 'BSC' },
+      { symbol: 'MATIC', name: 'Polygon', network: 'Polygon' },
+      { symbol: 'AVAX', name: 'Avalanche', network: 'Avalanche' },
+      { symbol: 'FTM', name: 'Fantom', network: 'Fantom' }
+    ];
   }
 
   async disconnect() {

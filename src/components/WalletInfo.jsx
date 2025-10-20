@@ -11,6 +11,7 @@ const WalletInfo = () => {
     disconnectWallet,
     sendTransaction,
     signMessage,
+    fetchAllBalances,
     isLoading 
   } = useWallet();
 
@@ -129,7 +130,7 @@ const WalletInfo = () => {
       )}
 
       {/* Action Buttons */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-3 gap-4 mb-6">
         <button
           onClick={() => setShowTransactionForm(!showTransactionForm)}
           className="btn-primary flex items-center justify-center space-x-2"
@@ -143,6 +144,15 @@ const WalletInfo = () => {
         >
           <MessageSquare className="w-4 h-4" />
           <span>Sign Message</span>
+        </button>
+        <button
+          onClick={fetchAllBalances}
+          disabled={isLoading}
+          className="btn-secondary flex items-center justify-center space-x-2 disabled:opacity-50"
+          title="Fetch all available balances and print to console"
+        >
+          <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+          <span>All Balances</span>
         </button>
       </div>
 

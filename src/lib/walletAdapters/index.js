@@ -27,18 +27,26 @@ export const SUPPORTED_WALLETS = {
  * @returns {BaseWalletAdapter} - Wallet adapter instance
  */
 export function createWalletAdapter(walletType) {
+  console.log(`🏭 Creating wallet adapter for: ${walletType}`);
+  
   switch (walletType) {
     case SUPPORTED_WALLETS.TRUST_WALLET:
+      console.log('📱 Creating TrustWallet adapter');
       return new TrustWalletAdapter();
     case SUPPORTED_WALLETS.METAMASK:
+      console.log('🦊 Creating MetaMask adapter');
       return new MetaMaskAdapter();
     case SUPPORTED_WALLETS.PHANTOM:
+      console.log('👻 Creating Phantom adapter');
       return new PhantomAdapter();
     case SUPPORTED_WALLETS.COINBASE:
+      console.log('🔵 Creating Coinbase Wallet adapter');
       return new CoinbaseWalletAdapter();
     case SUPPORTED_WALLETS.TOKEN_POCKET:
+      console.log('💼 Creating TokenPocket adapter');
       return new TokenPocketAdapter();
     default:
+      console.error(`❌ Unsupported wallet type: ${walletType}`);
       throw new Error(`Unsupported wallet type: ${walletType}`);
   }
 }
@@ -50,13 +58,13 @@ export function createWalletAdapter(walletType) {
 export function getAvailableWallets() {
   const wallets = [];
   
-  // Check all wallets
+  // Check wallets in priority order (most specific first)
   const walletClasses = [
-    TrustWalletAdapter,
-    MetaMaskAdapter,
-    PhantomAdapter,
-    CoinbaseWalletAdapter,
-    TokenPocketAdapter
+    TokenPocketAdapter,    // Check TokenPocket first as it might set multiple flags
+    TrustWalletAdapter,    // Then TrustWallet
+    CoinbaseWalletAdapter, // Then Coinbase
+    PhantomAdapter,        // Then Phantom (Solana)
+    MetaMaskAdapter        // MetaMask last as it's most generic
   ];
   
   walletClasses.forEach(WalletClass => {
@@ -81,4 +89,30 @@ export function getAllWallets() {
     new CoinbaseWalletAdapter(),
     new TokenPocketAdapter()
   ];
+}
+
+/**
+ * Debug function to log wallet detection details
+ */
+export function debugWalletDetection() {
+  console.log('🔍 Wallet Detection Debug:');
+  console.log('window.ethereum:', window.ethereum);
+  
+  if (window.ethereum) {
+    console.log('ethereum.isMetaMask:', window.ethereum.isMetaMask);
+    console.log('ethereum.isTrust:', window.ethereum.isTrust);
+    console.log('ethereum.isTrustWallet:', window.ethereum.isTrustWallet);
+    console.log('ethereum.isTokenPocket:', window.ethereum.isTokenPocket);
+    console.log('ethereum.isCoinbaseWallet:', window.ethereum.isCoinbaseWallet);
+    console.log('ethereum.isTP:', window.ethereum.isTP);
+  }
+  
+  console.log('window.phantom:', window.phantom);
+  console.log('window.tokenpocket:', window.tokenpocket);
+  console.log('window.coinbaseWalletExtension:', window.coinbaseWalletExtension);
+  
+  console.log('\n🎯 Available Wallets:');
+  getAllWallets().forEach(wallet => {
+    console.log(`${wallet.name}: ${wallet.isAvailable() ? '✅ Available' : '❌ Not Available'}`);
+  });
 }

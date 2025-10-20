@@ -166,6 +166,27 @@ export const WalletProvider = ({ children }) => {
     }
   };
 
+  // Fetch all available balances
+  const fetchAllBalances = async () => {
+    if (!currentWallet || !isConnected) {
+      console.error('No wallet connected');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      console.log('🔄 Manually fetching all balances...');
+      const balances = await currentWallet.getAllBalances();
+      console.log('✅ Balance fetch complete!');
+      return balances;
+    } catch (err) {
+      console.error('❌ Failed to fetch all balances:', err);
+      setError('Failed to fetch balances');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const value = {
     // State
     currentWallet,
@@ -185,6 +206,7 @@ export const WalletProvider = ({ children }) => {
     sendTransaction,
     signMessage,
     switchNetwork,
+    fetchAllBalances,
     
     // Utilities
     clearError: () => setError(null)

@@ -13,7 +13,8 @@ export class TokenPocketAdapter extends BaseWalletAdapter {
   isAvailable() {
     return typeof window !== 'undefined' && 
            ((window.ethereum && window.ethereum.isTokenPocket) ||
-            (window.tokenpocket && window.tokenpocket.ethereum));
+            (window.tokenpocket && window.tokenpocket.ethereum) ||
+            (window.ethereum && window.ethereum.isTP)); // Some versions use isTP
   }
 
   async connect() {
@@ -62,6 +63,9 @@ export class TokenPocketAdapter extends BaseWalletAdapter {
         window.location.reload();
       });
 
+      // Log connection details
+      await this.logConnectionDetails();
+
       return {
         address: this.address,
         provider: this.provider
@@ -70,6 +74,23 @@ export class TokenPocketAdapter extends BaseWalletAdapter {
       console.error('TokenPocket connection error:', error);
       throw error;
     }
+  }
+
+  getSupportedCurrencies() {
+    return [
+      { symbol: 'ETH', name: 'Ethereum', network: 'Ethereum' },
+      { symbol: 'BNB', name: 'Binance Coin', network: 'BSC' },
+      { symbol: 'MATIC', name: 'Polygon', network: 'Polygon' },
+      { symbol: 'AVAX', name: 'Avalanche', network: 'Avalanche' },
+      { symbol: 'FTM', name: 'Fantom', network: 'Fantom' },
+      { symbol: 'HT', name: 'Huobi Token', network: 'HECO' },
+      { symbol: 'TRX', name: 'Tron', network: 'Tron' },
+      { symbol: 'USDT', name: 'Tether', network: 'Multi-chain' },
+      { symbol: 'USDC', name: 'USD Coin', network: 'Multi-chain' },
+      { symbol: 'BUSD', name: 'Binance USD', network: 'BSC' },
+      { symbol: 'CAKE', name: 'PancakeSwap', network: 'BSC' },
+      { symbol: 'UNI', name: 'Uniswap', network: 'Ethereum' }
+    ];
   }
 
   async disconnect() {
